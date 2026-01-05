@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - Apna Parivar</title>
+    <!-- === UPDATED STYLES === -->
+    <style>
+        :root { 
+            --accent-color: #005a9c; /* Darker Blue */
+            --accent-dark: #004170;  /* Darker Blue (Hover) */
+            --bg-light: #ffffff;   /* Pure White */
+            --bg-mid: #f9f9f9;     /* Light Gray for cards */
+            --text-light: #f0f6ff; /* Light Blue for highlights */
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light); color: #333; margin: 0; padding: 0;
+            font-weight: 300; padding-top: 60px; /* Space for fixed header */
+        }
+        .header {
+            background-color: #ffffff; padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+        }
+        .menu-toggle {
+            font-size: 2rem; cursor: pointer; user-select: none;
+            line-height: 1; padding: 0.25rem 0.5rem;
+        }
+        .logo {
+            font-size: 1.5rem; font-weight: 700; color: var(--accent-color);
+            text-decoration: none;
+        }
+        .btn {
+            display: inline-block; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; text-decoration: none;
+            color: #ffffff; background-color: var(--accent-color);
+            cursor: pointer; border: none;
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn:hover { 
+            background-color: var(--accent-dark);
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        .btn-secondary {
+            background: none; border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: none;
+        }
+        .btn-secondary:hover { 
+            background-color: var(--text-light);
+            color: var(--accent-dark);
+            transform: scale(1.05);
+            box-shadow: none;
+        }
+        .btn-success {
+            background-color: #5cb85c;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn-success:hover {
+            background-color: #449d44;
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        .side-menu {
+            position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
+            background: #fff; box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1001; transition: left 0.3s ease-in-out;
+            padding: 1.5rem;
+        }
+        .side-menu.open { left: 0; }
+        .side-menu .logo { margin-bottom: 2rem; display: block; }
+        .side-menu nav a {
+            display: block; padding: 0.75rem 0; font-size: 1.2rem;
+            text-decoration: none; color: #444; font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .side-menu nav a:hover { color: var(--accent-color); }
+        .side-menu nav a[href="/super_admin"] { color: #c14029; }
+        
+        .page-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none;
+            justify-content: center; align-items: center; z-index: 1100;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            background: #fff; padding: 2rem; border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 10px; right: 20px;
+            font-size: 2rem; font-weight: bold; color: #aaa;
+            cursor: pointer; line-height: 1;
+        }
+        .modal-card h2 { margin-top: 0; color: var(--accent-color); }
+        .modal-card p { line-height: 1.6; }
+        .container { max-width: 960px; margin: 2rem auto; padding: 0 2rem; }
+        .card {
+            background-color: #ffffff; padding: 2rem; border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07); margin-bottom: 2rem;
+        }
+        h1, h2, h3 { font-weight: 700; color: #222; }
+        
+        /* --- USER LIST STYLES (Toggle functionality) --- */
+        .user-list { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .user-list thead th {
+            padding: 12px; text-align: left; background: var(--bg-mid);
+            border-bottom: 2px solid #ddd;
+        }
+        .user-row {
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+        }
+        .user-row:hover {
+            background-color: #f0f0f0;
+        }
+        .user-list td {
+            padding: 12px; text-align: left; border-bottom: 1px solid #eee;
+        }
+        .user-row td:first-child { 
+            font-weight: 600; 
+            color: var(--accent-dark);
+        }
+        .user-row td .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+        .user-row.active .toggle-icon {
+            transform: rotate(90deg);
+        }
+        
+        /* User Status Colors */
+        .user-list .role-pending { color: #f0ad4e; font-weight: bold; }
+        .user-list .role-admin { color: #5cb85c; font-weight: bold; }
+        .user-list .role-banned { color: #d9534f; font-weight: bold; }
+        
+        /* Image Dropdown Styles */
+        .gallery-dropdown {
+            background: var(--bg-mid);
+            padding: 15px;
+            display: none; /* Hidden by default, toggled by JS */
+            transition: height 0.3s ease;
+        }
+        .gallery-dropdown.open {
+            display: table-row;
+        }
+        .gallery-dropdown td {
+            padding: 0;
+            border-bottom: none;
+        }
+        .gallery {
+            column-count: 3;
+            column-gap: 10px;
+            margin-top: 10px;
+        }
+        .gallery img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            break-inside: avoid;
+        }
+        .stats-text {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        .stats-text strong {
+            color: #333;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- === SHARED LAYOUT (HTML) === -->
+    <header class="header">
+        <span class="menu-toggle" id="menu-toggle">&#9776;</span>
+        <a href="/" class="logo" style="margin-left: 1.5rem;">Apna Parivar</a>
+        <button class="btn" id="subscribe-btn">Subscribe: ₹200/mo</button>
+    </header>
+
+    <div class="page-overlay" id="page-overlay"></div>
+
+    <div class="side-menu" id="side-menu">
+        <a href="/" class="logo">Apna Parivar</a>
+        <nav>
+            <a href="/admin">Open Admin Panel</a>
+            <a href="/share">View Gallery</a>
+            <a href="#" id="about-link">About Website</a>
+            <a href="#" id="support-link">Customer Support</a>
+            <a href="/super_admin" style="color: #c14029;">Super Admin Panel</a>
+        </nav>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="subscribe-modal">...</div>
+    <div class="modal-overlay" id="about-modal">...</div>
+    <div class="modal-overlay" id="support-modal">...</div>
+    <!-- === END SHARED LAYOUT (HTML) === -->
+
+    <div class="container">
+        <h1>Super Admin Panel</h1>
+
+        <!-- User Management Card -->
+        <div class="card">
+            <h3>User Management and Statistics</h3>
+            <table class="user-list">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">User</th>
+                        <th style="width: 25%;">Email</th>
+                        <th style="width: 10%;">Images</th>
+                        <th style="width: 15%;">Storage</th>
+                        <th style="width: 25%;">Status & Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in user_stats %}
+                    
+                    <!-- Main User Row (Clickable) -->
+                    <tr class="user-row" data-username="{{ data.username }}">
+                        <td>
+                            <span class="toggle-icon">&#9654;</span> 
+                            {{ data.username }}
+                        </td>
+                        <td>{{ data.email }}</td>
+                        
+                        <!-- NEW: Image Count -->
+                        <td>{{ data.image_count }}</td>
+                        
+                        <!-- NEW: Storage Used -->
+                        <td>{{ data.storage_mb }} MB</td>
+                        
+                        <td>
+                            <span class="role-{{ data.role }}">{{ data.role }}</span>
+                            
+                            <!-- Action Buttons -->
+                            {% if data.role == 'pending' %}
+                            <form action="{{ url_for('authorize_user', username=data.username) }}" method="POST" style="display: inline-block;">
+                                <button type="submit" class="btn" style="font-size: 12px; padding: 5px 10px;">Authorize</button>
+                            </form>
+                            {% endif %}
+                            
+                            {% if data.role == 'admin' %}
+                            <form action="{{ url_for('ban_user', username=data.username) }}" method="POST" style="display: inline-block;">
+                                <button type="submit" class="btn btn-secondary" style="font-size: 12px; padding: 5px 10px;">Ban</button>
+                            </form>
+                            {% endif %}
+                            
+                            {% if data.role == 'banned' %}
+                            <form action="{{ url_for('unban_user', username=data.username) }}" method="POST" style="display: inline-block;">
+                                <button type="submit" class="btn btn-success" style="font-size: 12px; padding: 5px 10px;">Unban</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    
+                    <!-- Hidden Dropdown Row for Gallery -->
+                    <tr class="gallery-dropdown" data-username="{{ data.username }}">
+                        <td colspan="5">
+                            <h4>{{ data.username }}'s Gallery ({{ data.image_count }} images)</h4>
+                            {% if data.user_images %}
+                            <div class="gallery">
+                                {% for filename in data.user_images %}
+                                    <img src="/uploads/{{ filename }}" alt="{{ filename }}">
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                                <p class="stats-text">This user has not uploaded any images yet.</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Removed "All Images Card" as it's now per user -->
+    </div>
+
+    <!-- === SHARED LAYOUT (JS) === -->
+    <script>
+        // Menu Toggle Logic (Same as before)
+        const menuToggle = document.getElementById('menu-toggle');
+        const sideMenu = document.getElementById('side-menu');
+        const pageOverlay = document.getElementById('page-overlay');
+        
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            pageOverlay.classList.remove('open');
+        }
+        menuToggle.addEventListener('click', () => {
+            sideMenu.classList.toggle('open');
+            pageOverlay.classList.toggle('open');
+        });
+        pageOverlay.addEventListener('click', closeMenu);
+
+        // Modal Functionality (Same as before)
+        function setupModal(btnId, modalId, closeBtnId) { /* ... */ }
+
+        // --- NEW: Dropdown Toggle Logic ---
+        const userRows = document.querySelectorAll('.user-row');
+        
+        userRows.forEach(row => {
+            row.addEventListener('click', function() {
+                const username = this.getAttribute('data-username');
+                const dropdown = document.querySelector(`.gallery-dropdown[data-username="${username}"]`);
+                const icon = this.querySelector('.toggle-icon');
+
+                // Toggle the 'open' class on the dropdown and 'active' on the row
+                dropdown.classList.toggle('open');
+                this.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>

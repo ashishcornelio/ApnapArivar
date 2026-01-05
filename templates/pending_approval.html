@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Pending - ApnaParivar</title>
+    <!-- === UPDATED STYLES === -->
+    <style>
+        :root { 
+            --accent-color: #005a9c; /* Darker Blue */
+            --accent-dark: #004170;  /* Darker Blue (Hover) */
+            --bg-light: #ffffff;   /* Pure White */
+            --bg-mid: #ffffff;     /* Light Gray for cards */
+            --text-light: #f0f6ff; /* Light Blue for highlights */
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light); color: #333; margin: 0; padding: 0;
+            font-weight: 300; padding-top: 60px; /* Space for fixed header */
+        }
+        .header {
+            background-color: #ffffff; padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+        }
+        .menu-toggle {
+            font-size: 2rem; cursor: pointer; user-select: none;
+            line-height: 1; padding: 0.25rem 0.5rem;
+        }
+        .logo {
+            font-size: 1.5rem; font-weight: 700; color: var(--accent-color);
+            text-decoration: none;
+        }
+        .btn {
+            display: inline-block; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; text-decoration: none;
+            color: #ffffff; background-color: var(--accent-color);
+            cursor: pointer; border: none;
+            transition: all 0.3s ease; /* Smooth transition for all effects */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Added Shadow */
+        }
+        .btn:hover { 
+            background-color: var(--accent-dark);
+            transform: scale(1.05); /* Added Enlargement */
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15); /* Enhanced Shadow */
+        }
+        .side-menu {
+            position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
+            background: #fff; box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1001; transition: left 0.3s ease-in-out;
+            padding: 1.5rem;
+        }
+        .side-menu.open { left: 0; }
+        .side-menu .logo { margin-bottom: 2rem; display: block; }
+        .side-menu nav a {
+            display: block; padding: 0.75rem 0; font-size: 1.2rem;
+            text-decoration: none; color: #444; font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .side-menu nav a:hover { color: var(--accent-color); }
+        .side-menu nav a[href="/super_admin"] { color: #c14029; }
+        
+        .page-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none;
+            justify-content: center; align-items: center; z-index: 1100;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            background: #fff; padding: 2rem; border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 10px; right: 20px;
+            font-size: 2rem; font-weight: bold; color: #aaa;
+            cursor: pointer; line-height: 1;
+        }
+        .modal-card h2 { margin-top: 0; color: var(--accent-color); }
+        .modal-card p { line-height: 1.6; }
+        .container { max-width: 960px; margin: 2rem auto; padding: 0 2rem; }
+        .card {
+            background-color: #ffffff; padding: 2rem; border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07); margin-bottom: 2rem;
+            text-align: center;
+        }
+        h1, h2, h3 { font-weight: 700; color: #222; }
+    </style>
+</head>
+<body>
+    <!-- === SHARED LAYOUT (HTML) === -->
+    <header class="header">
+        <span class="menu-toggle" id="menu-toggle">&#9776;</span>
+        <a href="/" class="logo" style="margin-left: 1.5rem;">ApnasParivar</a>
+        <button class="btn" id="subscribe-btn">Subscribe: ₹200/mo</button>
+    </header>
+    <div class="page-overlay" id="page-overlay"></div>
+    <div class="side-menu" id="side-menu">
+        <a href="/" class="logo">ApnaParivar</a>
+        <nav>
+            <a href="/admin">Open Admin Panel</a>
+            <a href="/share">View Gallery</a>
+            <a href="#" id="about-link">About Website</a>
+            <a href="#" id="support-link">Customer Support</a>
+            <a href="/super_admin" style="color: #c14029;">Super Admin Panel</a>
+        </nav>
+    </div>
+    <!-- Modals -->
+    <div class="modal-overlay" id="subscribe-modal">... (Content is in the JS) ...</div>
+    <div class="modal-overlay" id="about-modal">... (Content is in the JS) ...</div>
+    <div class="modal-overlay" id="support-modal">... (Content is in the JS) ...</div>
+    <!-- === END SHARED LAYOUT (HTML) === -->
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #f0ad4e;">Your Account is Pending Approval</h1>
+            <p style="font-size: 1.2rem;">Thank you for signing up!</p>
+            <p>Your account is currently waiting for authorization from our team.</p>
+            <p>To speed up the process, please follow the subscription instructions.</p>
+            <button class="btn" id="subscribe-btn-main" style="margin-top: 1rem; font-size: 1rem;">View Subscription Details</button>
+            <p style="margin-top: 2rem;"><a href="/logout" style="color: #777;">Logout</a></p>
+        </div>
+    </div>
+
+    <!-- === SHARED LAYOUT (JS) === -->
+    <script>
+        // Menu Toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sideMenu = document.getElementById('side-menu');
+        const pageOverlay = document.getElementById('page-overlay');
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            pageOverlay.classList.remove('open');
+        }
+        menuToggle.addEventListener('click', () => {
+            sideMenu.classList.toggle('open');
+            pageOverlay.classList.toggle('open');
+        });
+        pageOverlay.addEventListener('click', closeMenu);
+
+        // Modal Functionality
+        function setupModal(btnId, modalId, closeBtnId) {
+            const btn = document.getElementById(btnId);
+            const modal = document.getElementById(modalId);
+            const closeBtn = document.getElementById(closeBtnId);
+            if (btn && modal && closeBtn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    modal.classList.add('open');
+                    closeMenu();
+                });
+                closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.remove('open');
+                });
+            }
+        }
+        setupModal('subscribe-btn', 'subscribe-modal', 'close-subscribe');
+        setupModal('about-link', 'about-modal', 'close-about');
+        setupModal('support-link', 'support-modal', 'close-support');
+        
+        // Also link the main button on this page to the subscribe modal
+        setupModal('subscribe-btn-main', 'subscribe-modal', 'close-subscribe');
+    </script>
+</body>
+</html>

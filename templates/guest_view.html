@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Gallery - Apna Parivar</title>
+    <!-- === UPDATED STYLES === -->
+    <style>
+        :root { 
+            --accent-color: #005a9c; /* Darker Blue */
+            --accent-dark: #004170;  /* Darker Blue (Hover) */
+            --bg-light: #ffffff;   /* Pure White */
+            --bg-mid: #f9f9f9;     /* Light Gray for cards */
+            --text-light: #f0f6ff; /* Light Blue for highlights */
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light); color: #333; margin: 0; padding: 0;
+            font-weight: 300; padding-top: 60px; /* Space for fixed header */
+        }
+        .header {
+            background-color: #ffffff; padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+        }
+        .menu-toggle {
+            font-size: 2rem; cursor: pointer; user-select: none;
+            line-height: 1; padding: 0.25rem 0.5rem;
+        }
+        .logo {
+            font-size: 1.5rem; font-weight: 700; color: var(--accent-color);
+            text-decoration: none;
+        }
+        .btn {
+            display: inline-block; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; text-decoration: none;
+            color: #ffffff; background-color: var(--accent-color);
+            cursor: pointer; border: none;
+            transition: all 0.3s ease; /* Smooth transition for all effects */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Added Shadow */
+        }
+        .btn:hover { 
+            background-color: var(--accent-dark);
+            transform: scale(1.05); /* Added Enlargement */
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15); /* Enhanced Shadow */
+        }
+        .side-menu {
+            position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
+            background: #fff; box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1001; transition: left 0.3s ease-in-out;
+            padding: 1.5rem;
+        }
+        .side-menu.open { left: 0; }
+        .side-menu .logo { margin-bottom: 2rem; display: block; }
+        .side-menu nav a {
+            display: block; padding: 0.75rem 0; font-size: 1.2rem;
+            text-decoration: none; color: #444; font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .side-menu nav a:hover { color: var(--accent-color); }
+        .side-menu nav a[href="/super_admin"] { color: #c14029; }
+        
+        .page-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none;
+            justify-content: center; align-items: center; z-index: 1100;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            background: #fff; padding: 2rem; border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 10px; right: 20px;
+            font-size: 2rem; font-weight: bold; color: #aaa;
+            cursor: pointer; line-height: 1;
+        }
+        .modal-card h2 { margin-top: 0; color: var(--accent-color); }
+        .modal-card p { line-height: 1.6; }
+        /* Page Content */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        h1 {
+            font-weight: 700; color: #222; text-align: center;
+            font-size: 2.5rem; margin-bottom: 2rem;
+        }
+        span { color: var(--accent-color); }
+        .form-container {
+            display: flex; justify-content: center; align-items: center; padding: 2rem;
+        }
+        .form-card {
+            width: 400px; padding: 2.5rem; background: #fff;
+            border-radius: 12px; box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .form-card h3 {
+            margin-top: 0; margin-bottom: 1.5rem; font-weight: 600; color: #333;
+        }
+        .form-card input {
+            width: 100%; padding: 12px; border: 1px solid #ccc;
+            border-radius: 8px; box-sizing: border-box; font-size: 1.2rem;
+            text-align: center; letter-spacing: 2px; margin-bottom: 1.5rem;
+        }
+        .btn-full { width: 100%; }
+        
+        /* --- PINTEREST STYLE GALLERY --- */
+        .gallery {
+            column-count: 4; 
+            column-gap: 15px;
+            margin-top: 1rem;
+        }
+        @media (max-width: 1000px) {
+            .gallery { column-count: 3; }
+        }
+        @media (max-width: 700px) {
+            .gallery { column-count: 2; }
+        }
+        @media (max-width: 400px) {
+            .gallery { column-count: 1; }
+        }
+        .gallery img {
+            width: 100%; 
+            height: auto; 
+            border-radius: 12px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease; 
+            cursor: pointer; 
+            display: block; 
+            margin-bottom: 15px; 
+            break-inside: avoid;
+        }
+        .gallery img:hover {
+            transform: scale(1.03); 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .lightbox-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.90); display: none;
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+        .lightbox-content {
+            max-width: 90%; max-height: 90%; object-fit: contain;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+        .lightbox-close {
+            position: absolute; top: 20px; right: 35px;
+            font-size: 45px; color: #fff; cursor: pointer;
+            font-weight: bold; line-height: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- === SHARED LAYOUT (HTML) === -->
+    <header class="header">
+        <span class="menu-toggle" id="menu-toggle">&#9776;</span>
+        <a href="/" class="logo" style="margin-left: 1.5rem;">Apna Parivar</a>
+        <button class="btn" id="subscribe-btn">Subscribe: ₹200/mo</button>
+    </header>
+    <div class="page-overlay" id="page-overlay"></div>
+    
+    <div class="side-menu" id="side-menu">
+        <a href="/" class="logo">Apna Parivar</a>
+        <nav>
+            <a href="/admin">Open Admin Panel</a>
+            <a href="/share">View Gallery</a>
+            <a href="#" id="about-link">About Website</a>
+            <a href="#" id="support-link">Customer Support</a>
+            <a href="/super_admin" style="color: #c14029;">Super Admin Panel</a>
+        </nav>
+    </div>
+    <!-- Modals -->
+    <div class="modal-overlay" id="subscribe-modal">...</div>
+    <div class="modal-overlay" id="about-modal">...</div>
+    <div class="modal-overlay" id="support-modal">...</div>
+    <!-- === END SHARED LAYOUT (HTML) === -->
+
+    <div class="container">
+        {% if show_code_form %}
+            <div class="form-container">
+                <div class="form-card">
+                    <h3>Enter Access Code</h3>
+                    <form action="/share/view" method="POST">
+                        <input type="text" name="code" placeholder="6-digit code" required>
+                        <button type="submit" class="btn btn-full">View Gallery</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <h1>Shared <span>Gallery</span></h1>
+            <!-- NEW: Image Count Display -->
+            <p style="text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--accent-color); margin-bottom: 2rem;">
+                Displaying {{ image_count }} Photos
+            </p>
+            <div class="gallery">
+                {% if images %}
+                    {% for image_filename in images %}
+                        <img src="/uploads/{{ image_filename }}" alt="{{ image_filename }}" class="gallery-item">
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; font-size: 1.1rem;">The admin hasn't uploaded any images yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="lightbox" class="lightbox-overlay">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+    </div>
+
+    <!-- === SHARED LAYOUT (JS) === -->
+    <script>
+        // Menu Toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sideMenu = document.getElementById('side-menu');
+        const pageOverlay = document.getElementById('page-overlay');
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            pageOverlay.classList.remove('open');
+        }
+        menuToggle.addEventListener('click', () => {
+            sideMenu.classList.toggle('open');
+            pageOverlay.classList.toggle('open');
+        });
+        pageOverlay.addEventListener('click', closeMenu);
+
+        // Modal Functionality
+        function setupModal(btnId, modalId, closeBtnId) { 
+            // Modal content is loaded in index.html, 
+            // but for a real app you'd load it here or use a base template.
+        }
+        
+        // --- Page-Specific JS ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const galleryImages = document.querySelectorAll('.gallery-item');
+        const closeBtn = document.querySelector('.lightbox-close');
+        galleryImages.forEach(function(image) {
+            image.addEventListener('click', function() {
+                lightboxImg.src = this.src;
+                lightbox.style.display = 'flex';
+            });
+        });
+        function closeLightbox() {
+            lightbox.style.display = 'none';
+            lightboxImg.src = '';
+        }
+        if(closeBtn) { closeBtn.addEventListener('click', closeLightbox); }
+        if(lightbox) {
+            lightbox.addEventListener('click', function(event) {
+                if (event.target === this) { closeLightbox(); }
+            });
+        }
+    </script>
+</body>
+</html>

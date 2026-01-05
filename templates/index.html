@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApnaParivar</title>
+    <!-- === UPDATED STYLES === -->
+    <style>
+        :root { 
+            --accent-color: #005a9c; /* Darker Blue */
+            --accent-dark: #004170;  /* Darker Blue (Hover) */
+            --bg-light: #ffffff;   /* Pure White */
+            --bg-mid: #f9f9f9;     /* Light Gray for cards */
+            --text-light: #f0f6ff; /* Light Blue for highlights */
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light); color: #333; margin: 0; padding: 0;
+            font-weight: 300; padding-top: 60px; /* Space for fixed header */
+        }
+        .header {
+            background-color: #ffffff; padding: 0.75rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+        }
+        .menu-toggle {
+            font-size: 2rem; cursor: pointer; user-select: none;
+            line-height: 1; padding: 0.25rem 0.5rem;
+        }
+        .logo {
+            font-size: 1.5rem; font-weight: 700; color: var(--accent-color);
+            text-decoration: none;
+        }
+        .btn {
+            display: inline-block; padding: 8px 16px; border-radius: 8px;
+            font-size: 14px; font-weight: bold; text-decoration: none;
+            color: #ffffff; background-color: var(--accent-color);
+            cursor: pointer; border: none;
+            transition: all 0.3s ease; /* Smooth transition for all effects */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Added Shadow */
+        }
+        .btn:hover { 
+            background-color: var(--accent-dark);
+            transform: scale(1.05); /* Added Enlargement */
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15); /* Enhanced Shadow */
+        }
+        .btn-secondary {
+            background: none; border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: none; /* No shadow for secondary */
+        }
+        .btn-secondary:hover { 
+            background-color: var(--text-light); /* Light Blue bg */
+            color: var(--accent-dark);
+            transform: scale(1.05); /* Added Enlargement */
+            box-shadow: none;
+        }
+        .side-menu {
+            position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
+            background: #fff; box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1001; transition: left 0.3s ease-in-out;
+            padding: 1.5rem;
+        }
+        .side-menu.open { left: 0; }
+        .side-menu .logo { margin-bottom: 2rem; display: block; }
+        .side-menu nav a {
+            display: block; padding: 0.75rem 0; font-size: 1.2rem;
+            text-decoration: none; color: #444; font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .side-menu nav a:hover { color: var(--accent-color); }
+        .side-menu nav a[href="/super_admin"] { color: #c14029; } /* Keep Super Admin red */
+        
+        .page-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none;
+            justify-content: center; align-items: center; z-index: 1100;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            background: #fff; padding: 2rem; border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 10px; right: 20px;
+            font-size: 2rem; font-weight: bold; color: #aaa;
+            cursor: pointer; line-height: 1;
+        }
+        .modal-card h2 { margin-top: 0; color: var(--accent-color); }
+        .modal-card p { line-height: 1.6; }
+        .btn-large {
+            padding: 12px 24px; font-size: 16px;
+        }
+        .hero {
+            text-align: center; padding: 4rem 2rem;
+        }
+        .hero-sub {
+            font-weight: 600; color: var(--accent-color);
+            letter-spacing: 0.5px;
+        }
+        .hero h1 {
+            font-size: 3.2rem; margin: 0.5rem 0 0 0; line-height: 1.2;
+            font-weight: 700; color: #222;
+        }
+        .hero h1 span { color: var(--accent-color); }
+        .hero p {
+            font-size: 1.2rem; color: #555; max-width: 550px;
+            margin: 1.5rem auto 2.5rem; line-height: 1.6;
+        }
+        .hero-actions .btn { margin: 0 0.5rem; }
+        .hero-note {
+            margin-top: 1.5rem; font-size: 0.9rem; color: #888;
+        }
+        .features {
+            background-color: #ffffff; padding: 4rem 2rem; text-align: center;
+        }
+        .features h2 {
+            font-size: 2.5rem; margin-top: 0; margin-bottom: 3.5rem; color: #222;
+        }
+        .features-grid {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 2rem; max-width: 1000px; margin: 0 auto;
+        }
+        .feature-card {
+            background-color: var(--bg-mid); /* Light Gray */
+            border: 1px solid #eee;
+            padding: 2.5rem 2rem; border-radius: 12px;
+            width: 260px; text-align: left; transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+        }
+        .feature-card span { font-size: 2.5rem; }
+        .feature-card h3 {
+            font-size: 1.5rem; font-weight: 700; margin: 1rem 0;
+        }
+        .feature-card p {
+            font-size: 1rem; color: #666; line-height: 1.6;
+        }
+        .cta {
+            text-align: center; padding: 6rem 2rem;
+        }
+        .cta h2 {
+            font-size: 2.5rem; margin-top: 0; margin-bottom: 1.5rem; color: #222;
+        }
+        .cta p {
+            font-size: 1.1rem; color: #555; margin-bottom: 2.5rem;
+        }
+        .cta .btn { margin: 0.25rem 0.5rem; }
+    </style>
+</head>
+<body>
+
+    <!-- === SHARED LAYOUT (HTML) === -->
+    <header class="header">
+        <span class="menu-toggle" id="menu-toggle">&#9776;</span>
+        <a href="/" class="logo" style="margin-left: 1.5rem;">ApnaParivar</a>
+        <button class="btn" id="subscribe-btn">Subscribe: ₹200/mo</button>
+    </header>
+
+    <div class="page-overlay" id="page-overlay"></div>
+
+    <div class="side-menu" id="side-menu">
+        <a href="/" class="logo">ApnaParivar</a>
+        <nav>
+            <a href="/admin">Open Admin Panel</a>
+            <a href="/share">View Gallery</a>
+            <a href="#" id="about-link">About Website</a>
+            <a href="#" id="support-link">Customer Support</a>
+            <a href="/super_admin" style="color: #c14029;">Super Admin Panel</a>
+        </nav>
+    </div>
+
+    <!-- Subscription Modal -->
+    <div class="modal-overlay" id="subscribe-modal">
+        <div class="modal-card">
+            <span class="modal-close" id="close-subscribe">&times;</span>
+            <h2>Subscribe Now</h2>
+            <p>To get full admin access, please complete your payment.</p>
+            <p><strong>Price:</strong> ₹200 per month</p>
+            <p><strong>Razorpay ID:</strong> `yourid@razorpay`</p>
+            <p><strong>Email:</strong> `youremail@gmail.com`</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 1.5rem 0;">
+            <p><strong>* After making the payment, please email the reference ID to the given email to get your account authorized.</strong></p>
+        </div>
+    </div>
+    
+    <!-- About Modal -->
+    <div class="modal-overlay" id="about-modal">
+        <div class="modal-card">
+            <span class="modal-close" id="close-about">&times;</span>
+            <h2>About This Website</h2>
+            <p>ApnaParivar is a secure, private space for you to store and share your family's precious moments. Create your own private gallery and generate time-limited, secure access codes for family members to view your albums.</p>
+            <p>Only authorized admins can upload, manage, and delete photos. This website is designed for privacy, simplicity, and ease of use.</p>
+        </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div class="modal-overlay" id="support-modal">
+        <div class="modal-card">
+            <span class="modal-close" id="close-support">&times;</span>
+            <h2>Customer Support</h2>
+            <p>For any help with your account, payments, or technical issues, please contact us.</p>
+            <p><strong>Email:</strong> `youremail@gmail.com`</p>
+            <p><strong>Phone:</strong> `+91 12345 67890`</p>
+        </div>
+    </div>
+    <!-- === END SHARED LAYOUT (HTML) === -->
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <p class="hero-sub">Cherish Every Moment</p>
+        <h1>Keep Your Family<br>Memories <span>Together</span></h1>
+        <p>A beautiful, secure space to store and share your family photos. Only authorized admins control who sees your precious moments.</p>
+        <div class="hero-actions">
+            <a href="/signup" class="btn btn-large">Become an Admin</a>
+            <a href="/share" class="btn btn-secondary btn-large">View Gallery</a>
+        </div>
+        <p class="hero-note">Sign up to create your own private, shareable gallery.</p>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features">
+        <h2>Built for Families</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span>❤️</span>
+                <h3>Family First</h3>
+                <p>Designed specifically to collect, organize, and preserve memories together.</p>
+            </div>
+            <div class="feature-card">
+                <span>🔒</span>
+                <h3>Secure & Private</h3>
+                <p>Your photos are protected. New accounts require authorization to ensure privacy.</p>
+            </div>
+            <div class="feature-card">
+                <span>👨‍👩‍👧‍👦</span>
+                <h3>Easy Sharing</h3>
+                <p>Share memories with family members using simple, secure, timed codes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta">
+        <h2>Ready to Get Started?</h2>
+        <p>Create your family album or explore our demo gallery.</p>
+        <a href="/signup" class="btn btn-large">Become an Admin</a>
+        <a href="/share" class="btn btn-secondary btn-large">View Demo Gallery</a>
+    </div>
+
+    <!-- === SHARED LAYOUT (JS) === -->
+    <script>
+        // Menu Toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sideMenu = document.getElementById('side-menu');
+        const pageOverlay = document.getElementById('page-overlay');
+        
+        function closeMenu() {
+            sideMenu.classList.remove('open');
+            pageOverlay.classList.remove('open');
+        }
+        menuToggle.addEventListener('click', () => {
+            sideMenu.classList.toggle('open');
+            pageOverlay.classList.toggle('open');
+        });
+        pageOverlay.addEventListener('click', closeMenu);
+
+        // Modal Functionality
+        function setupModal(btnId, modalId, closeBtnId) {
+            const btn = document.getElementById(btnId);
+            const modal = document.getElementById(modalId);
+            const closeBtn = document.getElementById(closeBtnId);
+            if (btn && modal && closeBtn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault(); // Stop links from navigating
+                    modal.classList.add('open');
+                    closeMenu(); // Close side menu if open
+                });
+                closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.remove('open');
+                });
+            }
+        }
+        setupModal('subscribe-btn', 'subscribe-modal', 'close-subscribe');
+        setupModal('about-link', 'about-modal', 'close-about');
+        setupModal('support-link', 'support-modal', 'close-support');
+    </script>
+</body>
+</html>
